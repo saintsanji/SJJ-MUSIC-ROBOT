@@ -1,5 +1,91 @@
-A Discord Bot made by SSJ Technologies
+# SSJ MUSIC ROBOT v0.2.0
 
-Initial release 0.1.0
+A Discord music bot built with Discord.js, TypeScript, and NodeLink.
 
-A music bot that just works.
+Version 0.2.0 adds validated environment configuration and portable startup modes for running the bot with embedded NodeLink or connecting to an external NodeLink service.
+
+## Commands
+
+- `/play <query>` searches for music, joins your voice channel, queues a result, and starts playback.
+- `/skip` skips the current track.
+- `/queue` displays the current track and upcoming tracks.
+- `/stop` clears the queue, stops playback, and leaves the voice channel.
+
+## Requirements
+
+- Node.js 22.22.2 or newer.
+- A Discord application and bot token.
+- Either an embedded NodeLink service (Option A) or an external, reachable NodeLink server (Option B).
+
+## Configure
+
+Copy `.env.example` to `.env`, then set the required values:
+
+```dotenv
+DISCORD_TOKEN=your_discord_bot_token
+CLIENT_ID=your_discord_application_id
+GUILD_ID=
+NODELINK_HOST=127.0.0.1
+NODELINK_PORT=3000
+NODELINK_PASS=your_nodelink_password
+NODELINK_SECURE=false
+```
+
+`GUILD_ID` is optional and is used for guild-scoped slash-command deployment. Keep `.env` private; it is excluded from Git.
+
+Install, build, and start the bot locally:
+
+```sh
+npm ci
+npm run build
+npm start
+```
+
+For local development, `dotenv` loads `.env`. In containers and panels, values injected into `process.env` are used directly. Startup validates required settings and reports missing or invalid values.
+
+Register slash commands once for the Discord application:
+
+```sh
+npm run deploy
+```
+
+The deploy script uses `GUILD_ID` when set, otherwise it registers commands globally.
+
+## Docker
+
+The container entrypoint selects NodeLink behavior from `NODELINK_HOST`.
+
+### Option A: bot and NodeLink in one container
+
+Set `NODELINK_HOST=127.0.0.1` and `INCLUDE_NODELINK=true`. The image includes NodeLink, and `entrypoint.sh` starts NodeLink, waits three seconds, then starts the bot. Set the embedded NodeLink repository/ref with `NODELINK_REPOSITORY` and `NODELINK_REF` if needed.
+
+```sh
+docker compose up --build -d
+docker compose logs -f music-bot
+```
+
+### Option B: external NodeLink
+
+Set `NODELINK_HOST` to the hostname or IP address of a NodeLink service reachable from the bot container, and set `INCLUDE_NODELINK=false`. The entrypoint skips embedded NodeLink and launches only the bot.
+
+Do not use `127.0.0.1` for NodeLink running in another container or on another machine. Inside a container, loopback points back to that same container.
+
+Stop the container with:
+
+```sh
+docker compose down
+```
+
+## Pelican / Pterodactyl
+
+Import [`pelican/egg-ssj-music-robot.json`](pelican/egg-ssj-music-robot.json) through the panel's egg administration page, then create a server with that egg. Configure the Discord and NodeLink variables in the panel. Use `127.0.0.1` for embedded NodeLink (Option A), or a reachable service address for external NodeLink (Option B).
+
+The egg defaults to the `v0.2.0` Git tag. See [PELICAN.md](PELICAN.md) for setup, network requirements, command deployment, and updating to later releases.
+
+## Multiple Discord guilds
+
+One bot process can serve multiple Discord guilds. Do not run duplicate processes with the same bot token unless Discord sharding is configured; separate instances should normally use separate bot applications and tokens.
+
+
+Written using AI
+Developed by SSJ Technologies LTD

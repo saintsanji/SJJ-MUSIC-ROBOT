@@ -1,0 +1,133 @@
+{
+  "_comment": "Pelican/Pterodactyl-compatible egg for SSJ MUSIC ROBOT",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-10-26T00:00:00+00:00",
+  "name": "SSJ MUSIC ROBOT",
+  "author": "SSJ Technologies",
+  "description": "Discord music bot using discord.js, Node.js 22, and NodeLink.",
+  "features": null,
+  "docker_images": {
+    "Node.js 22": "ghcr.io/parkervcp/yolks:nodejs_22"
+  },
+  "file_denylist": [],
+  "startup": "bash ./entrypoint.sh",
+  "config": {
+    "files": "{}",
+    "startup": {
+      "done": "Logged in as"
+    },
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\nset -euo pipefail\n\napt-get update\napt-get install -y --no-install-recommends ca-certificates git python3 make g++\n\n: \"${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}\"\n: \"${GITHUB_REF:?GITHUB_REF is required}\"\n\nfind /mnt/server -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +\ngit clone --depth 1 --branch \"${GITHUB_REF}\" \"https://github.com/${GITHUB_REPOSITORY}.git\" /mnt/server\ncd /mnt/server\nnpm ci --include=dev\nnpm run build\n\nnodeLinkHost=\"${NODELINK_HOST,,}\"\ncase \"$nodeLinkHost\" in\n  localhost|127.0.0.1|::1)\n    : \"${NODELINK_SOURCE_REPOSITORY:=PerformanC/NodeLink}\"\n    : \"${NODELINK_SOURCE_REF:=main}\"\n    git clone --depth 1 --branch \"$NODELINK_SOURCE_REF\" \"https://github.com/${NODELINK_SOURCE_REPOSITORY}.git\" /mnt/server/nodelink\n    cd /mnt/server/nodelink\n    npm ci --include=dev\n    ;;\n  *)\n    echo \"External NodeLink selected at $NODELINK_HOST; skipping embedded NodeLink install.\"\n    ;;\nesac\n\necho 'SSJ MUSIC ROBOT installed successfully.'",
+      "container": "ghcr.io/parkervcp/yolks:nodejs_22",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "name": "Discord Bot Token",
+      "description": "Bot token from the Discord Developer Portal. Treat this value as a secret.",
+      "env_variable": "DISCORD_TOKEN",
+      "default_value": "",
+      "user_viewable": false,
+      "user_editable": true,
+      "rules": "required|string|min:1|max:255"
+    },
+    {
+      "name": "Discord Application ID",
+      "description": "Application ID used by the optional slash-command deployment script.",
+      "env_variable": "CLIENT_ID",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|min:1|max:32"
+    },
+    {
+      "name": "Discord Guild ID",
+      "description": "Optional guild ID for instant guild-scoped slash-command deployment. Leave blank to deploy globally.",
+      "env_variable": "GUILD_ID",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:32"
+    },
+    {
+      "name": "NodeLink Host",
+      "description": "Hostname or IP address of the NodeLink server reachable from this game server. Do not use 127.0.0.1 unless NodeLink shares this server's network namespace.",
+      "env_variable": "NODELINK_HOST",
+      "default_value": "127.0.0.1",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|min:1|max:255"
+    },
+    {
+      "name": "NodeLink Port",
+      "description": "WebSocket/API port configured by NodeLink.",
+      "env_variable": "NODELINK_PORT",
+      "default_value": "3000",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|integer|min:1|max:65535"
+    },
+    {
+      "name": "NodeLink Password",
+      "description": "The password configured in NodeLink. Treat this value as a secret.",
+      "env_variable": "NODELINK_PASS",
+      "default_value": "",
+      "user_viewable": false,
+      "user_editable": true,
+      "rules": "required|string|min:1|max:255"
+    },
+    {
+      "name": "NodeLink Secure Connection",
+      "description": "Set true when NodeLink uses TLS/WSS; otherwise false.",
+      "env_variable": "NODELINK_SECURE",
+      "default_value": "false",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|in:true,false"
+    },
+    {
+      "name": "GitHub Repository",
+      "description": "Public GitHub repository in owner/repository format; change this when using a fork.",
+      "env_variable": "GITHUB_REPOSITORY",
+      "default_value": "saintsanji/SJJ-MUSIC-ROBOT",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|min:3|max:200"
+    },
+    {
+      "name": "Git Ref",
+      "description": "Branch or tag to install. Defaults to v0.2.0 for a reproducible release install.",
+      "env_variable": "GITHUB_REF",
+      "default_value": "v0.2.0",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|min:1|max:100"
+    },
+    {
+      "name": "Embedded NodeLink Repository",
+      "description": "NodeLink repository to clone when NODELINK_HOST is localhost or loopback.",
+      "env_variable": "NODELINK_SOURCE_REPOSITORY",
+      "default_value": "PerformanC/NodeLink",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|min:3|max:200"
+    },
+    {
+      "name": "Embedded NodeLink Ref",
+      "description": "Branch or tag to install for embedded NodeLink.",
+      "env_variable": "NODELINK_SOURCE_REF",
+      "default_value": "main",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|min:1|max:100"
+    }
+  ]
+}

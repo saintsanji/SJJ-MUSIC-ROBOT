@@ -1,9 +1,7 @@
 import { REST, Routes } from "discord.js";
-import { config } from "dotenv";
 import { readdirSync } from "fs";
 import { join } from "path";
-
-config();
+import { loadConfig } from "./config";
 
 const commands = [];
 const commandsPath = join(__dirname, "commands");
@@ -17,16 +15,17 @@ for (const file of commandFiles) {
     }
 }
 
-const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN!);
+const appConfig = loadConfig();
+const rest = new REST({ version: "10" }).setToken(appConfig.discordToken);
 
 (async () => {
     try {
         console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-        const data: any = await rest.put(
-            Routes.applicationCommands(process.env.CLIENT_ID!),
-            { body: commands },
-        );
+        const route = appConfig.guildId
+            ? Routes.applicationGuildCommands(appConfig.clientId, appConfig.guildId)
+            : Routes.applicationCommands(appConfig.clientId);
+        const data: any = await rest.put(route, { body: commands });
 
         console.log(`Successfully reloaded ${data.length} application (/) commands.`);
     } catch (error) {

@@ -1,27 +1,46 @@
-# Run the music bot in Docker
+# Docker deployment
 
-The Compose service builds the TypeScript bot into a Node.js 22 image. It reads Discord and NodeLink credentials from the existing `.env` file and routes the NodeLink connection to the host machine, where the supplied NodeLink configuration listens on port `3000`.
+The bot supports two NodeLink layouts. Configure the matching settings in `.env` before building.
 
-Before starting the container, stop any other music-bot process using the same Discord token. Keep NodeLink running.
+## Option A: bot and embedded NodeLink in one container
 
-Start the bot:
+Use loopback for NodeLink and include the embedded service in the image:
 
-```sh
-docker-compose up --build -d
+```dotenv
+NODELINK_HOST=127.0.0.1
+NODELINK_PORT=3000
+NODELINK_PASS=your_nodelink_password
+INCLUDE_NODELINK=true
+NODELINK_REPOSITORY=PerformanC/NodeLink
+NODELINK_REF=main
 ```
 
-View its logs:
+Build and start:
 
 ```sh
-docker-compose logs -f music-bot
+docker compose up --build -d
 ```
 
-Stop the container:
+The image downloads NodeLink during its build. The entrypoint starts it in the background, waits three seconds, then starts the bot. It passes the configured port and password to NodeLink without storing credentials in the image.
+
+## Option B: connect to an external NodeLink
+
+Set `NODELINK_HOST` to the hostname/IP reachable from the bot container and disable embedding:
+
+```dotenv
+NODELINK_HOST=nodelink.example.net
+NODELINK_PORT=3000
+NODELINK_PASS=your_nodelink_password
+INCLUDE_NODELINK=false
+```
+
+Then rebuild and start with `docker compose up --build -d`. The entrypoint skips launching NodeLink and starts the bot directly. Do not use `127.0.0.1` for a separate container or machine; loopback refers to the bot container itself.
+
+## Logs and shutdown
 
 ```sh
-docker-compose down
+docker compose logs -f music-bot
+docker compose down
 ```
 
-By default, the container connects to `host.docker.internal:3000`. To use another reachable NodeLink address, set `NODELINK_DOCKER_HOST` in `.env`; set `NODELINK_PORT` to the matching port. The NodeLink server must be reachable from the Docker host gateway.
-
-This project does not currently have a Git remote. A Pterodactyl egg installer needs a hosted source repository or archive URL to fetch the bot code; the Docker setup here does not depend on publishing the project.
+For Pelican/Pterodactyl deployment, import `pelican/egg-ssj-music-robot.json` and follow [PELICAN.md](PELICAN.md).

@@ -1,16 +1,14 @@
 import { Client, GatewayIntentBits, Collection, Partials } from "discord.js";
 import { LavalinkManager, NodeType, NodeLinkDefaultSources } from "lavalink-client";
-import { config } from "dotenv";
 import { readdirSync } from "fs";
 import { join } from "path";
-
-config();
+import { AppConfig, loadConfig } from "./config";
 
 export class MusicBot extends Client {
     public lavalink: LavalinkManager;
     public commands = new Collection<string, any>();
 
-    constructor() {
+    constructor(private readonly appConfig: AppConfig) {
         super({
             intents: [
                 GatewayIntentBits.Guilds,
@@ -24,10 +22,10 @@ export class MusicBot extends Client {
         this.lavalink = new LavalinkManager({
             nodes: [
                 {
-                    authorization: process.env.NODELINK_PASS ?? "",
-                    host: process.env.NODELINK_HOST ?? "",
-                    port: Number(process.env.NODELINK_PORT),
-                    secure: process.env.NODELINK_SECURE === "true",
+                    authorization: appConfig.nodeLinkPassword,
+                    host: appConfig.nodeLinkHost,
+                    port: appConfig.nodeLinkPort,
+                    secure: appConfig.nodeLinkSecure,
                     nodeType: NodeType.NodeLink,
                 }
             ],
@@ -89,43 +87,44 @@ export class MusicBot extends Client {
     }
 
     public async start() {
-        if (!process.env.DISCORD_TOKEN) {
-            throw new Error("DISCORD_TOKEN is missing from the environment.");
-        }
-
         console.log(`Loaded ${this.commands.size} slash commands: ${this.commands.map((command) => command.data.name).join(", ") || "none"}`);
-        await this.login(process.env.DISCORD_TOKEN);
+        await this.login(this.appConfig.discordToken);
     }
 }
 
-const client = new MusicBot();
-client.on("error", (error) => console.error("Discord client error:", error));
-client.on("shardError", (error) => console.error("Discord gateway shard error:", error));
-client.start().catch((error) => {
-    console.error("Bot login failed:", error);
-    process.exitCode = 1;
-});
+async function main(): Promise<void> {
+    const client = new MusicBot(loadConfig());
+    client.on("error", (error) => console.error("Discord client error:", error));
+    client.on("shardError", (error) => console.error("Discord gateway shard error:", error));
 
-// Handle interaction for slash commands
-client.on("interactionCreate", async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
+    client.on("interactionCreate", async (interaction) => {
+        if (!interaction.isChatInputCommand()) return;
 
-    const command = client.commands.get(interaction.commandName);
-    if (!command) {
-        console.warn(`Received unregistered command interaction: /${interaction.commandName}`);
-        return;
-    }
-
-    console.log(`Executing /${interaction.commandName} in guild ${interaction.guildId ?? "DM"}`);
-
-    try {
-        await command.execute(interaction, client);
-    } catch (error) {
-        console.error(error);
-        if (interaction.deferred || interaction.replied) {
-            await interaction.followUp({ content: "There was an error while executing this command!", ephemeral: true });
-        } else {
-            await interaction.reply({ content: "There was an error while executing this command!", ephemeral: true });
+        const command = client.commands.get(interaction.commandName);
+        if (!command) {
+            console.warn(`Received unregistered command interaction: /${interaction.commandName}`);
+            return;
         }
-    }
+
+        console.log(`Executing /${interaction.commandName} in guild ${interaction.guildId ?? "DM"}`);
+
+        try {
+            await command.execute(interaction, client);
+        } catch (error) {
+            console.error(error);
+            const message = "There was an error while executing this command!";
+            if (interaction.deferred || interaction.replied) {
+                await interaction.followUp({ content: message, ephemeral: true });
+            } else {
+                await interaction.reply({ content: message, ephemeral: true });
+            }
+        }
+    });
+
+    await client.start();
+}
+
+main().catch((error: unknown) => {
+    console.error("Bot startup failed:", error instanceof Error ? error.message : error);
+    process.exitCode = 1;
 });

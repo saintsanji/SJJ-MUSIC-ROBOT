@@ -1,6 +1,6 @@
 {
   "name": "ssj-music-robot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SSJ MUSIC ROBOT: a vibe-coded Discord music bot that just works.",
   "main": "dist/index.js",
   "scripts": {
