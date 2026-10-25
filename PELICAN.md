@@ -20,7 +20,7 @@ Set the egg variables in the server's Startup configuration:
 - `NODELINK_PASS`: the NodeLink server password.
 - `NODELINK_SECURE`: `true` when NodeLink uses TLS/WSS; otherwise `false`.
 - `GITHUB_REPOSITORY`: public bot repository in `owner/repository` format. Defaults to `saintsanji/SJJ-MUSIC-ROBOT`.
-- `GITHUB_REF`: bot branch or tag to install. Defaults to the `v0.2.0` release tag.
+- `GITHUB_REF`: bot branch or tag to install. Defaults to the `v0.2.1` release tag.
 - `NODELINK_SOURCE_REPOSITORY`: embedded NodeLink repository, used for Option A. Defaults to `PerformanC/NodeLink`.
 - `NODELINK_SOURCE_REF`: embedded NodeLink branch or tag. Defaults to `main`.
 
