@@ -6,7 +6,7 @@
   },
   "exported_at": "2026-10-26T00:00:00+00:00",
   "name": "SSJ MUSIC ROBOT",
-  "author": "SSJ Technologies",
+  "author": "saintsanji@proton.me",
   "description": "Discord music bot using discord.js, Node.js 22, and NodeLink.",
   "features": null,
   "docker_images": {
