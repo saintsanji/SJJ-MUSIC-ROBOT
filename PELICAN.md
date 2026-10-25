@@ -22,7 +22,7 @@ Set the egg variables in the server's Startup configuration:
 - `GITHUB_REPOSITORY`: public bot repository in `owner/repository` format. Defaults to `saintsanji/SJJ-MUSIC-ROBOT`.
 - `GITHUB_REF`: bot branch or tag to install. Defaults to the `v0.2.1` release tag.
 - `NODELINK_SOURCE_REPOSITORY`: embedded NodeLink repository, used for Option A. Defaults to `PerformanC/NodeLink`.
-- `NODELINK_SOURCE_REF`: embedded NodeLink branch or tag. Defaults to `main`.
+- `NODELINK_SOURCE_REF`: embedded NodeLink branch or tag. Defaults to the upstream `dev` branch.
 
 NodeLink must allow connections from the bot container/network and its firewall must permit the configured port. The bot does not need an inbound port allocation.
 

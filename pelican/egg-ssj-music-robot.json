@@ -25,7 +25,7 @@
   },
   "scripts": {
     "installation": {
-      "script": "#!/bin/bash\nset -euo pipefail\n\napt-get update\napt-get install -y --no-install-recommends ca-certificates git python3 make g++\n\n: \"${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}\"\n: \"${GITHUB_REF:?GITHUB_REF is required}\"\n\nfind /mnt/server -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +\necho \"Cloning bot ${GITHUB_REPOSITORY} at ${GITHUB_REF}...\"\ngit clone --depth 1 --branch \"${GITHUB_REF}\" \"https://github.com/${GITHUB_REPOSITORY}.git\" /mnt/server\ncd /mnt/server\nnpm ci --include=dev\nnpm run build\n\nnodeLinkHost=\"${NODELINK_HOST:-127.0.0.1}\"\nnodeLinkHost=\"${nodeLinkHost,,}\"\ncase \"$nodeLinkHost\" in\n  localhost|127.0.0.1|::1)\n    : \"${NODELINK_SOURCE_REPOSITORY:=PerformanC/NodeLink}\"\n    : \"${NODELINK_SOURCE_REF:=main}\"\n    echo \"Installing embedded NodeLink ${NODELINK_SOURCE_REPOSITORY} at ${NODELINK_SOURCE_REF}...\"\n    git clone --depth 1 --branch \"$NODELINK_SOURCE_REF\" \"https://github.com/${NODELINK_SOURCE_REPOSITORY}.git\" /mnt/server/nodelink\n    cd /mnt/server/nodelink\n    npm ci --include=dev\n    test -f package.json\n    echo 'Embedded NodeLink installed.'\n    ;;\n  *)\n    echo \"External NodeLink selected at ${NODELINK_HOST:-$nodeLinkHost}; skipping embedded NodeLink install.\"\n    ;;\nesac\n\necho 'SSJ MUSIC ROBOT installation completed successfully.'",
+      "script": "#!/bin/bash\nset -euo pipefail\n\napt-get update\napt-get install -y --no-install-recommends ca-certificates git python3 make g++\n\n: \"${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}\"\n: \"${GITHUB_REF:?GITHUB_REF is required}\"\n\nfind /mnt/server -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +\necho \"Cloning bot ${GITHUB_REPOSITORY} at ${GITHUB_REF}...\"\ngit clone --depth 1 --branch \"${GITHUB_REF}\" \"https://github.com/${GITHUB_REPOSITORY}.git\" /mnt/server\ncd /mnt/server\nnpm ci --include=dev\nnpm run build\n\nnodeLinkHost=\"${NODELINK_HOST:-127.0.0.1}\"\nnodeLinkHost=\"${nodeLinkHost,,}\"\ncase \"$nodeLinkHost\" in\n  localhost|127.0.0.1|::1)\n    : \"${NODELINK_SOURCE_REPOSITORY:=PerformanC/NodeLink}\"\n    : \"${NODELINK_SOURCE_REF:=dev}\"\n    echo \"Installing embedded NodeLink ${NODELINK_SOURCE_REPOSITORY} at ${NODELINK_SOURCE_REF}...\"\n    if ! git clone --depth 1 --branch \"$NODELINK_SOURCE_REF\" \"https://github.com/${NODELINK_SOURCE_REPOSITORY}.git\" /mnt/server/nodelink; then\n      echo \"Failed to clone embedded NodeLink. Check NODELINK_SOURCE_REPOSITORY and NODELINK_SOURCE_REF (${NODELINK_SOURCE_REF}).\" >&2\n      exit 1\n    fi\n    cd /mnt/server/nodelink\n    npm ci --include=dev\n    test -f package.json\n    echo 'Embedded NodeLink installed.'\n    ;;\n  *)\n    echo \"External NodeLink selected at ${NODELINK_HOST:-$nodeLinkHost}; skipping embedded NodeLink install.\"\n    ;;\nesac\n\necho 'SSJ MUSIC ROBOT installation completed successfully.'",
       "container": "node:22-trixie-slim",
       "entrypoint": "bash"
     }
@@ -125,7 +125,7 @@
       "name": "Embedded NodeLink Ref",
       "description": "Branch or tag to install for embedded NodeLink.",
       "env_variable": "NODELINK_SOURCE_REF",
-      "default_value": "main",
+      "default_value": "dev",
       "user_viewable": true,
       "user_editable": true,
       "rules": "required|string|min:1|max:100"

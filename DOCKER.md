@@ -12,7 +12,7 @@ NODELINK_PORT=3000
 NODELINK_PASS=your_nodelink_password
 INCLUDE_NODELINK=true
 NODELINK_REPOSITORY=PerformanC/NodeLink
-NODELINK_REF=main
+NODELINK_REF=dev
 ```
 
 Build and start:

@@ -10,7 +10,7 @@ RUN npm run build && npm prune --omit=dev
 FROM node:22.22.2-bookworm-slim AS nodelink-build
 ARG INCLUDE_NODELINK=true
 ARG NODELINK_REPOSITORY=PerformanC/NodeLink
-ARG NODELINK_REF=main
+ARG NODELINK_REF=dev
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates git python3 make g++ \
     && rm -rf /var/lib/apt/lists/* \
