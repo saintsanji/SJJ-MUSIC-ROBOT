@@ -1,0 +1,12 @@
+services:
+  music-bot:
+    build: .
+    container_name: ssj-music-robot
+    init: true
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODELINK_HOST: ${NODELINK_DOCKER_HOST:-host.docker.internal}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

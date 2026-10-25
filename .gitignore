@@ -1,0 +1,17 @@
+# Local credentials
+.env
+.env.*
+!.env.example
+
+# Private project notes
+/Initial Instructions
+
+# Dependencies and generated output
+node_modules/
+dist/
+.venv/
+graphify-out/
+
+# Logs
+npm-debug.log*
+*.log

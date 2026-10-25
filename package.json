@@ -1,0 +1,25 @@
+{
+  "name": "ssj-music-robot",
+  "version": "0.1.0",
+  "description": "SSJ MUSIC ROBOT: a vibe-coded Discord music bot that just works.",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "deploy": "ts-node src/deploy-commands.ts"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "lavalink-client": "^2.2.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

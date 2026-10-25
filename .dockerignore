@@ -1,0 +1,8 @@
+.env
+.env.*
+.git
+.venv
+node_modules
+dist
+graphify-out
+npm-debug.log*
