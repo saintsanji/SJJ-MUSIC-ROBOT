@@ -105,9 +105,9 @@
     },
     {
       "name": "Git Ref",
-      "description": "Branch or tag to install. Defaults to v0.2.1 for a reproducible release install.",
+      "description": "Branch or tag to install. Defaults to v0.3.0 for a reproducible release install.",
       "env_variable": "GITHUB_REF",
-      "default_value": "v0.2.1",
+      "default_value": "v0.3.0",
       "user_viewable": true,
       "user_editable": true,
       "rules": "required|string|min:1|max:100"
